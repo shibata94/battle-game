@@ -1,26 +1,29 @@
 import * as React from 'react'
+import styled from 'styled-components'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Character, CharacterType, StorageKey } from './../components/constants'
+import { Character, CharacterType, StorageKey, BaseIconUrl } from './../components/constants'
 import { PlayerActionDto, EnemyActionDto, getEnemyActionKeysByStage, getPlayerActions, getPlayerSelectedAction, getEnemySelectedAction } from './../db/action'
 import { JobRecord } from './../db/job'
 import { StageRecord } from './../db/stage'
 import { PotentialMap, getPotentialByStage } from './../db/potential'
 import { checkJobParam, checkStageParam } from './../components/urlParamsCheck'
 import { createJobUrl } from './../components/createUrl'
+import { IconImg, MessageButton, Message, MenuWrapper, MenuItem } from './../components/design'
 
 const { useState, useMemo, useEffect } = React
 
   interface Props {
     gameInfo: {
-      jobs: JobRecord[]
-      stages: StageRecord[]
+      jobs: Map<string, JobRecord>,
+      stages: Map<number, StageRecord>
     }
     setClearMaxStage: (stage: number) => void
   }
 
+
+
 export const Battle: React.FC<Props> = (props) => {
   const { gameInfo, setClearMaxStage } = props
-
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -74,8 +77,6 @@ if (stageRedirect) return stageRedirect;
     });
     })();
   }, []);
-
-
 
     //別画面遷移用フック
     const navigate = useNavigate();
@@ -341,7 +342,7 @@ console.log(enemyActionKeys)
               <div className="flex flex-col gap-4">
                 <div className="rounded-2xl border p-4 shadow-sm">
                   <div className="mb-2 flex items-center justify-between">
-                    <h2 className="text-lg font-bold">プレイヤー</h2>
+                    <h2 className="text-lg font-bold">{Character.Player.label}</h2>
                   </div>
                   <div className="space-y-3">
                     <Bar
@@ -361,7 +362,7 @@ console.log(enemyActionKeys)
       
                 <div className="flex flex-1 items-center gap-4">
                   <div className="flex h-40 w-32 items-center justify-center rounded-2xl border bg-gradient-to-br from-gray-50 to-gray-200 text-3xl font-bold shadow-inner">
-                    アイコン
+                    <IconImg src={gameInfo.jobs.get(selectedJob).iconUrl} alt="プレイヤーアイコン" />
                   </div>
       
                   {playerActionModalVisible &&
@@ -369,58 +370,53 @@ console.log(enemyActionKeys)
                     <h3 className="mb-2 text-sm font-semibold text-gray-500">
                       行動選択
                     </h3>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      {actions.playerNormal.map(normalAction => (
-                        <button
-                          key={normalAction.key}
-                          onClick={() => doPlayerAction(normalAction.key)}
-                          className="rounded-2xl border px-4 py-3 text-left font-medium shadow hover:shadow-md active:translate-y-px"
-                        >
-                          {normalAction.name}
-                        </button>
-                      ))}
-                      <button
-                        onClick={() => setSkillModalVisible(true)}
-                        className="rounded-2xl border px-4 py-3 text-left font-medium shadow hover:shadow-md active:translate-y-px"
-                      >
-                        スキル
-                      </button> 
-                    </div>
+<MenuWrapper>
+  {actions.playerNormal.map(normalAction => (
+    <MenuItem
+      key={normalAction.key}
+      onClick={() => doPlayerAction(normalAction.key)}
+    >
+      {normalAction.name}
+    </MenuItem>
+  ))}
+
+  <MenuItem onClick={() => setSkillModalVisible(true)}>
+    スキル
+  </MenuItem>
+</MenuWrapper>
                     </div>
                   }
+                </div>
+              </div>
                   {/* スキル選択モーダル */}
                   {skillModalVisible && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                       <div className="bg-white p-4 rounded-xl">
                         <h3 className="text-lg font-bold mb-2">スキルを選択</h3>
-                        <div className="grid grid-cols-2 gap-2">
+                        <MenuWrapper>
                           {actions.playerSkill.map(skillAction => (
-                            <button
+                            <MenuItem
                               key={skillAction.key}
                               onClick={() => doPlayerAction(skillAction.key)}
-                              className="border rounded p-2"
                             >
                               {skillAction.name} {skillAction.consumptionMP}
-                            </button>
+                            </MenuItem>
                           ))}
-                          <button
-                            className="border rounded p-2"
+                          <MenuItem
                             onClick={() => setSkillModalVisible(false)}
                           >
                             とじる
-                          </button>
-                        </div>
+                          </MenuItem>
+                        </MenuWrapper>
                       </div>
                     </div>
                   )}
-                </div>
-              </div>
-      
+
               {/* 敵側 */}
               <div className="flex flex-col items-end gap-4">
                 <div className="w-full rounded-2xl border p-4 shadow-sm">
                   <div className="mb-2 flex items-center justify-between">
-                    <h2 className="text-lg font-bold">敵</h2>
+                    <h2 className="text-lg font-bold">{Character.Enemy.label}</h2>
                   </div>
                   <div className="space-y-3">
                     <Bar
@@ -433,27 +429,27 @@ console.log(enemyActionKeys)
                 </div>
       
                 <div className="flex h-56 w-40 items-center justify-center rounded-2xl border bg-gradient-to-br from-gray-50 to-gray-200 text-3xl font-bold shadow-inner">
-                  アイコン
+                  <IconImg src={gameInfo.stages.get(selectedStage).enemyIconUrl} alt="敵アイコン" />
                 </div>
               </div>
             </div>
             {continueMessageModalVisible && 
-              <button disabled style={{ whiteSpace: "pre-wrap" }}>
+              <Message style={{ whiteSpace: "pre-wrap" }}>
                 {continueMessage}
-              </button>
+              </Message>
             }
             {finishModalVisible && 
-              <button onClick={() => navigate(createJobUrl(selectedJob))} style={{ whiteSpace: "pre-wrap" }}>
+              <MessageButton onClick={() => navigate(createJobUrl(selectedJob))} style={{ whiteSpace: "pre-wrap" }}>
                 {finishMessage}
-              </button>
+              </MessageButton>
             }
             {messageModalVisible && 
-              <button onClick={() => {
+              <MessageButton onClick={() => {
                   setMessageModalVisible(false); //メッセージモーダル非表示
                   setTurn(turn == 0 ? 1 : 0); //ターン変更
                 }} style={{ whiteSpace: "pre-wrap" }}>
                 {message}
-              </button>
+              </MessageButton>
             }
         </div>
       );

@@ -4,11 +4,12 @@ import { JobRecord } from './../db/job'
 import { StageRecord } from './../db/stage'
 import { StorageKey } from './../components/constants'
 import { createJobUrl } from './../components/createUrl'
+import { IconImg } from './../components/design'
 
   interface Props {
     gameInfo: {
-      jobs: JobRecord[]
-      stages: StageRecord[]
+      jobs: Map<string, JobRecord>,
+      stages: Map<number, StageRecord>
     }
     setClearMaxStage: (stage: number) => void
   }
@@ -30,7 +31,9 @@ export const SelectJob: React.FC<Props> = (props) => {
 
   return (
     <div>
-      {gameInfo.jobs.map(job => (
+      {Array.from(gameInfo.jobs.values()).map(job => (
+        <>
+        <IconImg src={job.iconUrl} alt={job.name} />
         <button
           key={job.key}
           onClick={() => selectStage(job.key)}
@@ -38,6 +41,7 @@ export const SelectJob: React.FC<Props> = (props) => {
         >
           {job.name}
         </button>
+        </>
       ))}
     </div>
   );

@@ -7,8 +7,8 @@ import { StorageKey } from './../components/constants'
 
 export const SelectStage: React.FC<{
   gameInfo: {
-    jobs: JobRecord[];
-    stages: StageRecord[];
+      jobs: Map<string, JobRecord>,
+      stages: Map<number, StageRecord>
   };
 }> = ({ gameInfo }) => {
 
@@ -32,7 +32,7 @@ export const SelectStage: React.FC<{
 
   return (
     <div>
-      {gameInfo.stages.map(stage => (
+      {Array.from(gameInfo.stages.values()).map(stage => (
         <button
           key={stage.num}
           onClick={() => startBattle(stage.num)}
