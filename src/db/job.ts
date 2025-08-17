@@ -49,7 +49,6 @@ await jobsTable.clear();
 //  }
 };
 
-
 export const getAllJobs = async (): Promise<Map<string, JobRecord>> => {
   const jobsArray = await jobsTable.toArray(); // 配列として取得
   const jobsMap = new Map<string, JobRecord>();

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import styled, { keyframes } from 'styled-components';
-
+ 
 const { useState, useEffect , useRef} = React
 
 // ドットフォント用
@@ -54,7 +54,7 @@ export const DQMenu: React.FC = () => {
       alert(`選択: ${menuOptions[selectedIndex]}`);
     }
   };
-
+  
   return (
     <MenuWrapper tabIndex={0} ref={menuRef} onKeyDown={handleKeyDown}>
       {menuOptions.map((option, index) => (

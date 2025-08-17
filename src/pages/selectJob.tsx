@@ -6,13 +6,13 @@ import { StorageKey } from './../components/constants'
 import { createJobUrl } from './../components/createUrl'
 import { IconImg } from './../components/design'
 
-  interface Props {
-    gameInfo: {
-      jobs: Map<string, JobRecord>,
-      stages: Map<number, StageRecord>
-    }
-    setClearMaxStage: (stage: number) => void
+interface Props {
+  gameInfo: {
+    jobs: Map<string, JobRecord>,
+    stages: Map<number, StageRecord>
   }
+  setClearMaxStage: (stage: number) => void
+}
 
 export const SelectJob: React.FC<Props> = (props) => {
   const { gameInfo, setClearMaxStage } = props

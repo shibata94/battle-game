@@ -49,7 +49,6 @@ await stagesTable.clear();
 //  }
 };
 
-
 export const getAllStages = async (): Promise<Map<number, StageRecord>> => {
   const stagesArray = await stagesTable.toArray(); // 配列として取得
   const stagesMap = new Map<number, StageRecord>();

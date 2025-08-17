@@ -10,4 +10,4 @@ export const StorageKey = 'battle-game/clearMaxStage'
 export const BaseIconUrl = '/src/images/'
 
 export const ContinueGuideMessage = '■別の 行動を 選択してください■'
-export const FinishGuideMessage = '■ステージ選択画面に 戻ります■'
+export const FinishGuideMessage = '■ステージ選択画面 に 戻ります■'
