@@ -81,7 +81,7 @@ const Main: React.FC = () => {
   return !dbReady ? <div>Loading...</div> : (
     <>
       <GlobalStyle />
-      <DQMenu />
+      {/*<DQMenu />*/}
     <Router>
       <Routes>
         <Route path="/selectJob" element={

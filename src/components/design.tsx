@@ -78,4 +78,24 @@ export const MenuItem = styled.button`
     outline: none;      /* フォーカス枠を消す */
     box-shadow: none;   /* フォーカス時の影も消す */
   }
+
+  /* disabled のとき */
+  &:disabled {
+    background-color: #302b2bff;  /* 無効時の背景色 */
+    color: gray;             /* 文字色 */
+    cursor: not-allowed;     /* 禁止カーソル */
+    box-shadow: none;        /* 影を消す */
+  }
+`;
+
+/* 横並び */
+//親
+export const SideBySideContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2列に分ける */
+  gap: 16px;
+`;
+//子
+export const SideBySideBox = styled.div`
+  padding: 8px;
 `;

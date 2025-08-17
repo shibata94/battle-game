@@ -4,6 +4,7 @@ import { JobRecord } from './../db/job'
 import { StageRecord } from './../db/stage'
 import { checkJobParam, checkStageParam } from './../components/urlParamsCheck'
 import { StorageKey } from './../components/constants'
+import { MenuWrapper, MenuItem} from './../components/design'
 
 export const SelectStage: React.FC<{
   gameInfo: {
@@ -31,17 +32,16 @@ export const SelectStage: React.FC<{
   };
 
   return (
-    <div>
+    <MenuWrapper>
       {Array.from(gameInfo.stages.values()).map(stage => (
-        <button
+        <MenuItem
           key={stage.num}
           onClick={() => startBattle(stage.num)}
           disabled={stage.num > currentClearMaxStage + 1}
-          className="rounded border px-4 py-2 m-1"
         >
           ステージ{stage.num}
-        </button>
+        </MenuItem>
       ))}
-    </div>
+    </MenuWrapper>
   );
 };

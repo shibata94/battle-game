@@ -1,14 +1,14 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Character, CharacterType, StorageKey, BaseIconUrl } from './../components/constants'
+import { Character, CharacterType, StorageKey, BaseIconUrl, ContinueGuideMessage, FinishGuideMessage } from './../components/constants'
 import { PlayerActionDto, EnemyActionDto, getEnemyActionKeysByStage, getPlayerActions, getPlayerSelectedAction, getEnemySelectedAction } from './../db/action'
 import { JobRecord } from './../db/job'
 import { StageRecord } from './../db/stage'
 import { PotentialMap, getPotentialByStage } from './../db/potential'
 import { checkJobParam, checkStageParam } from './../components/urlParamsCheck'
 import { createJobUrl } from './../components/createUrl'
-import { IconImg, MessageButton, Message, MenuWrapper, MenuItem } from './../components/design'
+import { IconImg, MessageButton, Message, MenuWrapper, MenuItem, SideBySideContainer, SideBySideBox } from './../components/design'
 
 const { useState, useMemo, useEffect } = React
 
@@ -145,23 +145,21 @@ console.log(enemyActionKeys)
 
     const finish = (winner: CharacterType, battleMessage: string) => {
 
-      const commonMessage = `■ステージ選択画面に戻ります■`
-
       let levelUpMessage = ''
       if(winner == Character.Player){
         const isFirstClear: boolean = currentClearMaxStage < selectedStage;
         
         console.log('prev:'+currentClearMaxStage+',selectedStage:'+selectedStage)
         if(isFirstClear){
-          levelUpMessage = 'ステージ初回クリアのため、最大HP、最大MP、攻撃力、回復力、使用可能スキルが増えた！\n'
+          levelUpMessage = 'ステージ 初回クリア のため 最大HP 最大MP 攻撃力 回復力 使用可能スキル が増えた！\n'
           setClearMaxStage(selectedStage)
           localStorage.setItem(StorageKey, JSON.stringify({ [selectedJob]: selectedStage }))
         }
       }
 
       const finishMessage = winner == Character.Player ?
-        `${Character.Player.label}のかち！\n` + levelUpMessage + commonMessage
-        : `${Character.Player.label}のまけ！\n` + commonMessage;
+        `${Character.Player.label} の かち！\n` + levelUpMessage + FinishGuideMessage
+        : `${Character.Player.label} の まけ！\n` + FinishGuideMessage;
 
       setFinishMessage(battleMessage + `\n\n` + finishMessage);
       setFinishModalVisible(true)
@@ -175,7 +173,7 @@ console.log(enemyActionKeys)
       if(stats[actorKey].MP < action.consumptionMP){
         notEnoughMP = true
         if(actorKey == Character.Player.key){
-          setContinueMessage('MP不足！')
+          setContinueMessage('MP不足！\n' + ContinueGuideMessage)
           setContinueMessageModalVisible(true)
           setPlayerActionModalVisible(true) //プレイヤー処理継続のため行動選択モーダルを再度trueに
           setSkillModalVisible(true)
@@ -196,13 +194,13 @@ console.log(enemyActionKeys)
         const damage = action.damageOrHeal
         const afterHP = stats[targetKey].HP - damage;
 
-        const commonMessage = `${actor.label}が「 ${action.name} 」をおこなった！\n`
-        const mpUsageMessage = actorKey == Character.Player.key && action.type1 == 'skill' ? `MPを${action.consumptionMP}消費し、` : '';
+        const commonMessage = `${actor.label} が「 ${action.name} 」を おこなった！\n`
+        const mpUsageMessage = actorKey == Character.Player.key && action.type1 == 'skill' ? `MP を ${action.consumptionMP} 消費し ` : '';
     
         if (afterHP <= 0) {
           const battleMessage = commonMessage + mpUsageMessage +
-            `${target.label}に${stats[targetKey].HP}のダメージ！\n` +
-            `${target.label}をたおした！`;
+            `${target.label} に ${stats[targetKey].HP} の ダメージ！\n` +
+            `${target.label} を たおした！`;
           setStats(prev => ({
             ...prev,
             [actorKey]: {
@@ -221,7 +219,7 @@ console.log(enemyActionKeys)
         } else {
           setMessage(
             commonMessage + mpUsageMessage +
-            `${target.label}に${damage}のダメージ！`
+            `${target.label} に ${damage} の ダメージ！`
           );
           setStats(prev => ({
             ...prev,
@@ -254,16 +252,12 @@ console.log(enemyActionKeys)
         const heal = action.damageOrHeal
         const afterHP = stats[targetKey].HP + heal;
 
-        const commonMessage = `${actor.label}が「 ${action.name} 」をおこなった！\n`
-        const mpUsageMessage = actorKey == Character.Player.key && action.type1 == 'skill' ? `MPを${action.consumptionMP}消費し、` : '';
+        const commonMessage = `${actor.label} が「 ${action.name} 」を おこなった！\n`
+        const mpUsageMessage = actorKey == Character.Player.key && action.type1 == 'skill' ? `MP を ${action.consumptionMP} 消費し ` : '';
     
         if (stats[targetKey].HP === targetPotential.maxHP) {
-          //setMessage(
-          //  commonMessage +
-          //  `しかしHPが満タンのため回復されなかった！（MP消費無し）`
-          //);
           if(actorKey == Character.Player.key){
-            setContinueMessage('HPが満タン！')
+            setContinueMessage('HP が すでに 満タン！\n' + ContinueGuideMessage)
             setContinueMessageModalVisible(true)
             setPlayerActionModalVisible(true) //プレイヤー処理継続のため行動選択モーダルを再度trueに
           }
@@ -271,7 +265,7 @@ console.log(enemyActionKeys)
         } else if (afterHP >= targetPotential.maxHP) {
           setMessage(
             commonMessage + mpUsageMessage +
-            `${target.label}が${targetPotential.maxHP - stats[targetKey].HP}回復！`
+            `${target.label} が ${targetPotential.maxHP - stats[targetKey].HP} 回復！`
           );
           setStats(prev => ({
             ...prev,
@@ -286,7 +280,7 @@ console.log(enemyActionKeys)
         } else {
           setMessage(
             commonMessage + mpUsageMessage +
-            `${target.label}が${heal}回復！`
+            `${target.label} が ${heal} 回復！`
           );
           setStats(prev => ({
             ...prev,
@@ -337,9 +331,9 @@ console.log(enemyActionKeys)
     
       return (
         <div className="min-h-[70vh] w-full bg-neutral-100 p-4 sm:p-6">
-            <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-2 sm:p-6">
+            <SideBySideContainer>
               {/* プレイヤー側 */}
-              <div className="flex flex-col gap-4">
+              <SideBySideBox>
                 <div className="rounded-2xl border p-4 shadow-sm">
                   <div className="mb-2 flex items-center justify-between">
                     <h2 className="text-lg font-bold">{Character.Player.label}</h2>
@@ -383,11 +377,13 @@ console.log(enemyActionKeys)
   <MenuItem onClick={() => setSkillModalVisible(true)}>
     スキル
   </MenuItem>
+  <MenuItem onClick={() => navigate(createJobUrl(selectedJob))}>
+    にげる
+  </MenuItem>
 </MenuWrapper>
                     </div>
                   }
                 </div>
-              </div>
                   {/* スキル選択モーダル */}
                   {skillModalVisible && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -411,9 +407,11 @@ console.log(enemyActionKeys)
                       </div>
                     </div>
                   )}
+              </SideBySideBox>
+
 
               {/* 敵側 */}
-              <div className="flex flex-col items-end gap-4">
+              <SideBySideBox>
                 <div className="w-full rounded-2xl border p-4 shadow-sm">
                   <div className="mb-2 flex items-center justify-between">
                     <h2 className="text-lg font-bold">{Character.Enemy.label}</h2>
@@ -431,8 +429,8 @@ console.log(enemyActionKeys)
                 <div className="flex h-56 w-40 items-center justify-center rounded-2xl border bg-gradient-to-br from-gray-50 to-gray-200 text-3xl font-bold shadow-inner">
                   <IconImg src={gameInfo.stages.get(selectedStage).enemyIconUrl} alt="敵アイコン" />
                 </div>
-              </div>
-            </div>
+              </SideBySideBox>
+            </SideBySideContainer>
             {continueMessageModalVisible && 
               <Message style={{ whiteSpace: "pre-wrap" }}>
                 {continueMessage}
