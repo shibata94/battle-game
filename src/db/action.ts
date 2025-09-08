@@ -58,7 +58,7 @@ export const initEnemyActions = async () => {
 //  if (count === 0) {
   await enemyActionsTable.clear();
   await enemyActionsTable.bulkPut([
-    { key: 'normalAttack', name: 'つうじょうこうげき', targetStage: null, type1: 'normal', type2: 'attack', multiplier: 0.18 },
+    { key: 'normalAttack', name: 'つうじょうこうげき', targetStage: null, type1: 'normal', type2: 'attack', multiplier: 0.13 },
     { key: 'normalHeal', name: 'かいふく', targetStage: null, type1: 'normal', type2: 'heal', multiplier: 0.05 },
     { key: 'fire', name: 'ファイア', targetStage: 1, type1: 'skill', type2: 'attack', multiplier: 0.2 },
     { key: 'thunder', name: 'サンダー', targetStage: 2, type1: 'skill', type2: 'attack', multiplier: 0.3 },
@@ -81,7 +81,7 @@ export const getPlayerActions = async (
   maxHP: number,
   maxMP: number
 ): Promise<PlayerActionDto[]> => {
-  const actions = await playerActionsTable.toArray();
+  const actions = await playerActionsTable.toArray();//.orderBy('multiplier')
 
   return actions.map(action => ({
     ...action,

@@ -4,7 +4,8 @@ import { JobRecord } from './../db/job'
 import { StageRecord } from './../db/stage'
 import { StorageKey } from './../components/constants'
 import { createJobUrl } from './../components/createUrl'
-import { IconImg } from './../components/design'
+import { IconImg2, Message } from './../components/design'
+import styled from "styled-components"
 
 interface Props {
   gameInfo: {
@@ -13,6 +14,17 @@ interface Props {
   }
   setClearMaxStage: (stage: number) => void
 }
+
+const JobList = styled.ul`
+  display: flex;
+  list-style-type: none;
+  gap: 50px
+`;
+
+const JobButton = styled.button`
+  border: none;
+`;
+
 
 export const SelectJob: React.FC<Props> = (props) => {
   const { gameInfo, setClearMaxStage } = props
@@ -30,19 +42,25 @@ export const SelectJob: React.FC<Props> = (props) => {
   };
 
   return (
-    <div>
+    <>
+    <Message>
+      ジョブ　を　せんたく　して　ください<br />
+      ジョブ　に　よって　使える　スキルが　ことなります
+    </Message>
+    <JobList>
       {Array.from(gameInfo.jobs.values()).map(job => (
-        <>
-        <IconImg src={job.iconUrl} alt={job.name} />
-        <button
-          key={job.key}
-          onClick={() => selectStage(job.key)}
-          className="rounded border px-4 py-2 m-1"
-        >
-          {job.name}
-        </button>
-        </>
+        <li key={job.key}>
+          <JobButton
+            key={job.key}
+            onClick={() => selectStage(job.key)}
+            className="rounded border px-4 py-2 m-1"
+          >
+            <IconImg2 src={job.iconUrl} alt={job.name} />
+            {job.name}
+          </JobButton>
+        </li>
       ))}
-    </div>
+    </JobList>
+    </>
   );
 };

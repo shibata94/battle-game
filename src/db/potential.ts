@@ -21,7 +21,7 @@ await potentialTable.clear();
   await potentialTable.bulkPut([
     { stage: 1, playerMaxHP: 300, playerMaxMP: 10, enemyMaxHP: 300, enemyMaxMP: 30 },
     { stage: 2, playerMaxHP: 500, playerMaxMP: 50, enemyMaxHP: 650, enemyMaxMP: 100 },
-    { stage: 3, playerMaxHP: 1200, playerMaxMP: 150, enemyMaxHP: 1800, enemyMaxMP: 200 },
+    { stage: 3, playerMaxHP: 1200, playerMaxMP: 150, enemyMaxHP: 1400, enemyMaxMP: 200 },
     { stage: 4, playerMaxHP: 2000, playerMaxMP: 250, enemyMaxHP: 2500, enemyMaxMP: 300 },
     { stage: 5, playerMaxHP: 4500, playerMaxMP: 350, enemyMaxHP: 6000, enemyMaxMP: 400 },
     ]);
@@ -36,17 +36,18 @@ export type PotentialMap = {
   [Character.Enemy.key]: { maxHP: number; maxMP: number };
 };
 
-export const getPotentialByStage = async (stage: number): Promise<PotentialMap> => {
-  const potentialRecord = await potentialTable.get(stage);
+export const getPotentialByStage = async (selectedStage: number, maxUnlockStage: number): Promise<PotentialMap> => {
+  const playerPotentialRecord = await potentialTable.get(maxUnlockStage);
+  const enemyPotentialRecord = await potentialTable.get(selectedStage);
 
   const potential: PotentialMap = {
     [Character.Player.key]: {
-      maxHP: potentialRecord ? potentialRecord.playerMaxHP : 0,
-      maxMP: potentialRecord ? potentialRecord.playerMaxMP : 0,
+      maxHP: playerPotentialRecord ? playerPotentialRecord.playerMaxHP : 0,
+      maxMP: playerPotentialRecord ? playerPotentialRecord.playerMaxMP : 0,
     },
     [Character.Enemy.key]: {
-      maxHP: potentialRecord ? potentialRecord.enemyMaxHP : 0,
-      maxMP: potentialRecord ? potentialRecord.enemyMaxMP : 0,
+      maxHP: enemyPotentialRecord ? enemyPotentialRecord.enemyMaxHP : 0,
+      maxMP: enemyPotentialRecord ? enemyPotentialRecord.enemyMaxMP : 0,
     }
   }
   return potential;

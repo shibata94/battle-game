@@ -10,14 +10,16 @@ import { JobRecord, initJobs, getAllJobs } from './db/job'
 import { StageRecord, initStages, getAllStages } from './db/stage'
 import { initPlayerActions, initEnemyActions } from './db/action'
 import { initPotential } from './db/potential'
+import { Title } from './pages/title1'
 import { Battle } from './pages/battle'
 import { SelectJob } from './pages/selectJob'
 import { SelectStage } from './pages/selectStage'
 import { DQMenu } from './components/commandMenu2'
 import { createGlobalStyle } from 'styled-components'
+import { BaseSoundUrl } from "./components/constants";
 
 
-const { useState, useEffect } = React
+const { useState, useEffect, useRef } = React
 
 export const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -31,12 +33,18 @@ export const GlobalStyle = createGlobalStyle`
     font-family: 'PixelMplus10', monospace;
     background-color: black;
     color: white;
+    font-size: 16px;
+  }
+
+  div {
+    user-select: none;
   }
 
   button {
     font-family: 'PixelMplus10', monospace;
     background-color: black;
     color: white;
+    font-size: 16px;
     border: 2px solid white;
     padding: 8px 12px;
     cursor: pointer;
@@ -78,12 +86,32 @@ const Main: React.FC = () => {
     })();
   }, []);
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const startBgm = () => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.1;
+      audioRef.current.play().catch(err => {
+        console.log("BGM再生失敗:", err);
+      });
+    }
+  };
+
+const stopBgm = () => {
+  if (audioRef.current) {
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0; // 頭に戻す
+  }
+};
+
   return !dbReady ? <div>Loading...</div> : (
     <>
       <GlobalStyle />
     {/*<DQMenu />*/}
     <Router>
+      <audio ref={audioRef} src={`${BaseSoundUrl}bgm.mp3`} loop />
       <Routes>
+        <Route path="/" element={<Title startBgm={startBgm} stopBgm={stopBgm} />} />
         <Route path="/selectJob" element={
             <SelectJob 
               gameInfo={gameInfo}
