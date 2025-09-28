@@ -4,8 +4,13 @@ import { JobRecord } from './../db/job'
 import { StageRecord } from './../db/stage'
 import { StorageKey } from './../components/constants'
 import { createJobUrl } from './../components/createUrl'
+import { playSound } from "./../components/commonLogic";
 import { IconImg2, Message } from './../components/design'
 import styled from "styled-components"
+import { BaseSoundUrl } from "./../components/constants";
+import { useBgm } from "./bgm";
+
+const { useEffect } = React;
 
 interface Props {
   gameInfo: {
@@ -35,6 +40,12 @@ export const SelectJob: React.FC<Props> = (props) => {
     localStorage.removeItem(StorageKey)
   })
   
+  const { ensureBgm } = useBgm();
+
+  useEffect(() => {
+    ensureBgm(`${BaseSoundUrl}/BGM/normal.mp3`);
+  }, []);
+
   const navigate = useNavigate();
 
   const selectStage = (job: string) => {
@@ -44,7 +55,7 @@ export const SelectJob: React.FC<Props> = (props) => {
   return (
     <>
     <Message>
-      ジョブ　を　せんたく　して　ください<br />
+      ジョブ　を　選択　して　ください<br />
       ジョブ　に　よって　使える　スキルが　ことなります
     </Message>
     <JobList>
@@ -52,7 +63,10 @@ export const SelectJob: React.FC<Props> = (props) => {
         <li key={job.key}>
           <JobButton
             key={job.key}
-            onClick={() => selectStage(job.key)}
+            onClick={() => {
+                  playSound('kettei');
+                  selectStage(job.key);
+            }}
             className="rounded border px-4 py-2 m-1"
           >
             <IconImg2 src={job.iconUrl} alt={job.name} />

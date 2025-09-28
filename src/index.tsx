@@ -6,15 +6,16 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom'
+import { BgmProvider } from './pages/bgm'
 import { JobRecord, initJobs, getAllJobs } from './db/job'
 import { StageRecord, initStages, getAllStages } from './db/stage'
 import { initPlayerActions, initEnemyActions } from './db/action'
 import { initPotential } from './db/potential'
-import { Title } from './pages/title1'
+import { preloadAllSounds } from './components/commonLogic'
+import { Title } from './pages/title'
 import { Battle } from './pages/battle'
 import { SelectJob } from './pages/selectJob'
 import { SelectStage } from './pages/selectStage'
-import { DQMenu } from './components/commandMenu2'
 import { createGlobalStyle } from 'styled-components'
 import { BaseSoundUrl } from "./components/constants";
 
@@ -72,6 +73,8 @@ const Main: React.FC = () => {
 
   useEffect(() => {
     (async () => {
+      preloadAllSounds();
+
       await initJobs();
       await initStages();
       await initPlayerActions();
@@ -88,50 +91,34 @@ const Main: React.FC = () => {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const startBgm = () => {
-    if (audioRef.current) {
-      audioRef.current.volume = 0.1;
-      audioRef.current.play().catch(err => {
-        console.log("BGM再生失敗:", err);
-      });
-    }
-  };
-
-const stopBgm = () => {
-  if (audioRef.current) {
-    audioRef.current.pause();
-    audioRef.current.currentTime = 0; // 頭に戻す
-  }
-};
-
   return !dbReady ? <div>Loading...</div> : (
     <>
       <GlobalStyle />
-    {/*<DQMenu />*/}
-    <Router>
-      <audio ref={audioRef} src={`${BaseSoundUrl}bgm.mp3`} loop />
-      <Routes>
-        <Route path="/" element={<Title startBgm={startBgm} stopBgm={stopBgm} />} />
-        <Route path="/selectJob" element={
-            <SelectJob 
-              gameInfo={gameInfo}
-              setClearMaxStage={setClearMaxStage}
-            />
-          } />
-        <Route path="/selectStage" element={
-            <SelectStage 
-              gameInfo={gameInfo}
-            />
-          } />
-        <Route path="/battle" element={
-            <Battle
-              gameInfo={gameInfo}
-              setClearMaxStage={setClearMaxStage}
-            />
-          } />
-        <Route path="*" element={<Navigate to="/selectJob" replace />} />
-      </Routes>
-    </Router>
+      <BgmProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Title />} />
+            <Route path="/selectJob" element={
+                <SelectJob 
+                  gameInfo={gameInfo}
+                  setClearMaxStage={setClearMaxStage}
+                />
+              } />
+            <Route path="/selectStage" element={
+                <SelectStage 
+                  gameInfo={gameInfo}
+                />
+              } />
+            <Route path="/battle" element={
+                <Battle
+                  gameInfo={gameInfo}
+                  setClearMaxStage={setClearMaxStage}
+                />
+              } />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </BgmProvider>
     </>
   )
 }

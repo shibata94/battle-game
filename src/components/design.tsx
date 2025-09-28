@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 // 上下に揺れるアニメーション
 const float = keyframes`
@@ -92,6 +92,13 @@ export const MessageButton = styled.button`
     }
   `;
 
+export const BlinkArrow = styled.span`
+  display: inline-block;
+  position: absolute;
+  right: 15px;
+  animation: ${blink} 2s infinite;
+`;
+
 /*メニュー全体の枠*/
 export const MenuWrapper = styled.div`
   background-color: black;
@@ -102,21 +109,35 @@ export const MenuWrapper = styled.div`
 
 export const SubMenu = styled.div<{ open: boolean }>`
   display: inline-block;
+  overflow: visible;
+  flex-shrink: 0;
   vertical-align: top;
   background: black;
-  overflow: hidden;
-  white-space: nowrap;
-  flex-shrink: 0;
   margin-top: 50px;
+  transform-origin: left center;
+  transform: scaleX(${({ open }) => (open ? 1 : 0)});
+  transition: transform 0.2s ease-out;
+  
+`;
 
-  /* 横幅アニメーション */
-  max-width: ${({ open }) => (open ? "300px" : "0px")};
-  transition: max-width 0.5s ease-out;
+export const tooltipHoverStyle = css`
+  position: relative;
+
+  &:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
 `;
 
 // 各メニューアイテム
+export const MenuItemWrapper = styled.div`
+  width: 100%;
+  ${tooltipHoverStyle}
+`;
+
 export const MenuItem = styled.button`
   display: block;
+  position: relative;
   width: 100%;
   padding: 12px 16px;
   font-size: 16px;
@@ -127,7 +148,7 @@ export const MenuItem = styled.button`
   &:hover {
     background-color: #222;
   }
-  
+
   &:active {
     transform: translateY(1px);
   }
@@ -146,11 +167,42 @@ export const MenuItem = styled.button`
   }
 `;
 
+export const Tooltip = styled.span`
+  display: block;
+  position: absolute;
+  width: max-content;       /* 文字幅に合わせる */
+  white-space: normal;      /* 折り返しを有効化 */
+  overflow-wrap: break-word; /* 長い文字列も折り返す */
+  word-break: keep-all;    /* 日本語は文字単位で折らず、自然な単位で折り返す */
+  max-width: 300px;
+  top: 25px;
+  left: 93%;
+  transform: translate(0, -100%);
+  background: black;
+  color: white;
+  font-size: 15px;
+  text-align: center;
+  line-height: 1.5;
+  border: 2px solid white;
+  padding: 6px 15px;
+  border-radius: 8px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s;
+
+  &.tooltip {}
+`;
+
+export const NormalBtnWrapper = styled.div`
+  ${tooltipHoverStyle}
+`;
+
 export const NormalBtn = styled.button`
-  height: 50px;
   border: 4px solid white;
   border-radius: 8px;
-  padding: 5px;
+  padding: 8px;
 `;
 
 /* 横並び */
@@ -163,6 +215,7 @@ export const SideBySideContainer = styled.div`
 //子
 export const SideBySideBox = styled.div`
   padding: 8px;
+  border-radius: 20px;
 `;
 
 /*エフェクト*/

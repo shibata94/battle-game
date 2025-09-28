@@ -20,27 +20,27 @@ await jobsTable.clear();
   {
     key: 'wizard',
     name: '魔法使い',
-    iconUrl: BaseIconUrl + 'player/character_mahotsukai.png'
+    iconUrl: BaseIconUrl + 'player/wizard.png'
   },
   {
     key: 'warrior',
     name: '戦士',
-    iconUrl: BaseIconUrl + 'player/character_mahotsukai.png'
+    iconUrl: BaseIconUrl + 'player/warrior.png'
   },
   {
     key: 'archer',
     name: '弓使い',
-    iconUrl: BaseIconUrl + 'player/character_mahotsukai.png'
+    iconUrl: BaseIconUrl + 'player/archer.png'
   },
   {
     key: 'monk',
     name: '僧侶',
-    iconUrl: BaseIconUrl + 'player/character_mahotsukai.png'
+    iconUrl: BaseIconUrl + 'player/monk.png'
   },
   {
     key: 'summoner',
     name: '召喚士',
-    iconUrl: BaseIconUrl + 'player/character_mahotsukai.png'
+    iconUrl: BaseIconUrl + 'player/summoner.png'
   }
     ]);
     console.log('"jobs"テーブルに初期データを登録しました');

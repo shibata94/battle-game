@@ -1,4 +1,4 @@
-export const Character = {
+export let Character = {
   Player: { key: 'player', label: 'プレイヤー' },
   Enemy: { key: 'enemy', label: 'モンスター' },
 } as const;

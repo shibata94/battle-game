@@ -5,6 +5,7 @@ import { BaseIconUrl } from './../components/constants'
 export interface StageRecord {
   num: number
   special: boolean
+  enemyName: string
   enemyIconUrl: string
 }
 
@@ -20,27 +21,32 @@ await stagesTable.clear();
   {
     num: 1,
     special: false,
+    enemyName: 'スライム',
     enemyIconUrl: BaseIconUrl + 'enemy/monster_slime.png'
   },
   {
     num: 2,
     special: false,
-    enemyIconUrl: BaseIconUrl + 'enemy/monster_slime.png'
+    enemyName: '死神',
+    enemyIconUrl: BaseIconUrl + 'enemy/monster_shinigami.png'
   },
   {
     num: 3,
     special: false,
-    enemyIconUrl: BaseIconUrl + 'enemy/monster_slime.png'
+    enemyName: 'ジャックオランタン',
+    enemyIconUrl: BaseIconUrl + 'enemy/monster_jackolantern.png'
   },
   {
     num: 4,
     special: false,
-    enemyIconUrl: BaseIconUrl + 'enemy/monster_slime.png'
+    enemyName: '吸血鬼',
+    enemyIconUrl: BaseIconUrl + 'enemy/character_monster_kyuketsuki_01_purple.png'
   },
   {
     num: 5,
     special: false,
-    enemyIconUrl: BaseIconUrl + 'enemy/monster_slime.png'
+    enemyName: 'ドラゴン',
+    enemyIconUrl: BaseIconUrl + 'enemy/monster_dragon.png'
   }
     ]);
     console.log('"stages"テーブルに初期データを登録しました');

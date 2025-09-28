@@ -19,7 +19,7 @@ export const initPotential = async () => {
 await potentialTable.clear();
     // データがまだなければ登録
   await potentialTable.bulkPut([
-    { stage: 1, playerMaxHP: 300, playerMaxMP: 10, enemyMaxHP: 300, enemyMaxMP: 30 },
+    { stage: 1, playerMaxHP: 300, playerMaxMP: 20, enemyMaxHP: 300, enemyMaxMP: 30 },
     { stage: 2, playerMaxHP: 500, playerMaxMP: 50, enemyMaxHP: 650, enemyMaxMP: 100 },
     { stage: 3, playerMaxHP: 1200, playerMaxMP: 150, enemyMaxHP: 1400, enemyMaxMP: 200 },
     { stage: 4, playerMaxHP: 2000, playerMaxMP: 250, enemyMaxHP: 2500, enemyMaxMP: 300 },

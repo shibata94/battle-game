@@ -4,8 +4,14 @@ import styled from "styled-components";
 import { JobRecord } from './../db/job'
 import { StageRecord } from './../db/stage'
 import { checkJobParam, checkStageParam } from './../components/urlParamsCheck'
+import { playSound } from "./../components/commonLogic";
 import { StorageKey } from './../components/constants'
-import { MenuWrapper, MenuItem, Message, IconImg3, NormalBtn } from './../components/design'
+import { MenuWrapper, MenuItem, Message, IconImg3, NormalBtnWrapper, Tooltip, NormalBtn } from './../components/design'
+import { BaseSoundUrl } from "./../components/constants";
+import { useBgm } from "./bgm";
+
+const { useEffect } = React;
+
 
 const Content = styled.div`
   display: flex;
@@ -28,6 +34,12 @@ export const SelectStage: React.FC<{
   };
 }> = ({ gameInfo }) => {
 
+  const { ensureBgm } = useBgm();
+
+  useEffect(() => {
+    ensureBgm(`${BaseSoundUrl}/BGM/normal.mp3`);
+  }, []);
+
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -49,15 +61,18 @@ export const SelectStage: React.FC<{
   return (
     <>
       <Message>
-        ステージ　を　せんたく　して　ください<br />
-        ステージ　は　クリアする　ごとに　かいほう　されます
+        ステージ　を　選択　して　ください<br />
+        ステージ　は　クリアする　たびに　解放　されます
       </Message>
       <Content>
         <MenuWrapper>
           {Array.from(gameInfo.stages.values()).map(stage => (
             <MenuItem
               key={stage.num}
-              onClick={() => startBattle(stage.num)}
+              onClick={() => {
+                playSound('kettei');
+                startBattle(stage.num)
+              }}
               disabled={stage.num > currentClearMaxStage + 1}
             >
               ステージ{stage.num}
@@ -65,18 +80,24 @@ export const SelectStage: React.FC<{
           ))}
         </MenuWrapper>
         <SelectedJobContent>
-          <div>せんたく　した　ジョブ</div>
+          <div>選択　した　ジョブ</div>
           <div>{gameInfo.jobs.get(selectedJob).name}</div>
           <IconImg3
             src={gameInfo.jobs.get(selectedJob).iconUrl}
             alt="プレイヤーアイコン"
           />
         </SelectedJobContent>
-        <NormalBtn
-          onClick={() => navigate("/selectJob")}
-        >
-          もどる
-        </NormalBtn>
+        <NormalBtnWrapper>
+          <NormalBtn
+            onClick={() => {
+              playSound('kettei');
+              navigate("/selectJob")
+            }}
+          >
+            ジョブ<br />えらびなおし
+          </NormalBtn>
+          <Tooltip className="tooltip">！注意！<br />クリア情報　は　リセット　されます。</Tooltip>
+        </NormalBtnWrapper>
       </Content>
     </>
   );

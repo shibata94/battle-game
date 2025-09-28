@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useBgm } from "./bgm";
 import {
   Character,
   CharacterType,
@@ -22,17 +23,21 @@ import { JobRecord } from "./../db/job";
 import { StageRecord } from "./../db/stage";
 import { PotentialMap, getPotentialByStage } from "./../db/potential";
 import { checkJobParam, checkStageParam } from "./../components/urlParamsCheck";
+import { playSound } from "./../components/commonLogic";
 import { createJobUrl } from "./../components/createUrl";
 import {
   IconImg,
   MessageButton,
   Message,
   MenuWrapper,
+  MenuItemWrapper,
   MenuItem,
+  Tooltip,
   SideBySideContainer,
   SideBySideBox,
   Effect,
   SubMenu,
+  BlinkArrow,
 } from "./../components/design";
 
 const { useState, useMemo, useEffect } = React;
@@ -58,13 +63,16 @@ interface Props {
 
   const Bar2 = styled.div<{ pct: number }>`
     background-color: white;
+    border-radius: 3px;
     width: ${props => props.pct}%;
-    height: 25px
+    height: 25px;
+    margin: 5px 0;
 `;
 
   const BarWrapper = styled.div`
     height: 100px;
-    margin-bottom: 30px
+    margin-bottom: 30px;
+    font-size: 18px
 `;
 
   const IconWrapper = styled.div`
@@ -78,6 +86,9 @@ interface Props {
 `;
 
 export const Battle: React.FC<Props> = (props) => {
+  const { ensureBgm, stopBgm } = useBgm();
+
+  const [hovered, setHovered] = useState<string | null>(null);
   const { gameInfo, setClearMaxStage } = props;
 
   const location = useLocation();
@@ -108,7 +119,7 @@ export const Battle: React.FC<Props> = (props) => {
     playerSkill: [] as PlayerActionDto[],
     enemyActionKeys: [] as string[],
   });
-
+console.table(actions.playerSkill);
   const [potential, setPotential] = useState<PotentialMap>({
     [Character.Player.key]: { maxHP: 0, maxMP: 0 },
     [Character.Enemy.key]: { maxHP: 0, maxMP: 0 },
@@ -121,10 +132,11 @@ export const Battle: React.FC<Props> = (props) => {
 
   //最大開放ステージ（既にクリア済みのステージをプレイする時は、最大クリアステージの能力・スキルの状態でプレイできる）
   const maxUnlockStage = selectedStage > currentClearMaxStage ? selectedStage : currentClearMaxStage + 1;
-  console.log('maxUnlockStage:'+maxUnlockStage)
 
   useEffect(() => {
     (async () => {
+      ensureBgm(`${BaseSoundUrl}/BGM/battle.mp3`);
+
       console.log("useEffectStart");
       const potentialData = await getPotentialByStage(selectedStage, maxUnlockStage);
       setPotential(potentialData);
@@ -187,15 +199,17 @@ export const Battle: React.FC<Props> = (props) => {
     if (finishModalVisible) {
 
     setTimeout(() => {
+      stopBgm();
+
       if(finishMessage.includes("かち！")){
         if(finishMessage.includes("初回クリア")){
-          playSound('first_win.mp3');
+          playSound('first_win');
         }
         else {
-          playSound('win.mp3');
+          playSound('win');
         }
       } else{
-        playSound('lose.mp3');
+        playSound('lose');
       }
     }, 700);
 
@@ -210,16 +224,6 @@ const [effect, setEffect] = useState<{
   type: 'attack' | 'heal';
   target: 'player' | 'enemy';
 }>(null);
-
-const playAttackOrHealSound = (type: 'attack' | 'heal') => {
-  const audio = new Audio(`${BaseSoundUrl}SE/${type}.mp3`);
-  audio.play();
-};
-
-const playSound = (soundFileName: string) => {
-  const audio = new Audio(`${BaseSoundUrl}SE/${soundFileName}`);
-  audio.play();
-};
 
   //ターン変更後の処理
   useEffect(() => {
@@ -342,7 +346,7 @@ const playSound = (soundFileName: string) => {
         : "";
 
   setEffect({ type: 'attack', target: targetKey});
-  playAttackOrHealSound('attack');
+  playSound('attack');
   setTimeout(() => setEffect(null), 500);
 
     if (afterHP <= 0) {
@@ -459,7 +463,7 @@ const playSound = (soundFileName: string) => {
     }
 
   setEffect({ type: 'heal', target: targetKey });
-  playAttackOrHealSound('heal');
+  playSound('heal');
   setTimeout(() => setEffect(null), 500);
 
     setMessageModalVisible(true);
@@ -571,34 +575,45 @@ const playSound = (soundFileName: string) => {
           <div className="flex">
             <MenuWrapper>
               {actions.playerNormal.map((normalAction) => (
-                <MenuItem
-                  key={normalAction.key}
-                  onClick={() => doPlayerAction(normalAction.key)}
-                >
+                <MenuItemWrapper key={normalAction.key}>
+                  <MenuItem onClick={() => doPlayerAction(normalAction.key)}>
                   {normalAction.name}
-                </MenuItem>
+                  </MenuItem>
+                  <Tooltip className="tooltip">{normalAction.description}<br />
+                    {normalAction.type2 === "attack" ? `攻撃値` : `回復値`} ： {normalAction.damageOrHeal}
+                  </Tooltip>
+                </MenuItemWrapper>
               ))}
 
-              <MenuItem onClick={() => setSkillModalVisible(!skillModalVisible)}>
-                スキル ▶
-              </MenuItem>
-              <MenuItem onClick={() => {
-                playSound('nigeru.mp3');
-                navigate(createJobUrl(selectedJob));
-              }}>
-                にげる
-              </MenuItem>
+              <MenuItemWrapper>
+                <MenuItem onClick={() => setSkillModalVisible(!skillModalVisible)}>
+                  スキル<BlinkArrow>▶</BlinkArrow>
+                  <Tooltip className="tooltip">ジョブ固有　の　スキル　を　選択できます。</Tooltip>
+                </MenuItem>
+              </MenuItemWrapper>
+              <MenuItemWrapper>
+                <MenuItem onClick={() => {
+                  playSound('nigeru');
+                  navigate(createJobUrl(selectedJob));
+                }}>
+                  にげる
+                  <Tooltip className="tooltip">せんとう　から　りだつ　して　ステージ選択画面　に　もどります。</Tooltip>
+                </MenuItem>
+              </MenuItemWrapper>
             </MenuWrapper>
             {/* スキル選択モーダル */}
             <SubMenu open={skillModalVisible}>
               <MenuWrapper>
                 {actions.playerSkill.map((skillAction) => (
-                  <MenuItem
-                    key={skillAction.key}
-                    onClick={() => doPlayerAction(skillAction.key)}
-                  >
-                    {skillAction.name} {skillAction.consumptionMP}
-                  </MenuItem>
+                  <MenuItemWrapper key={skillAction.key}>
+                    <MenuItem onClick={() => doPlayerAction(skillAction.key)}>
+                      {skillAction.name} {skillAction.consumptionMP}
+                    </MenuItem>
+                    <Tooltip className="tooltip">{skillAction.description}<br />
+                      {skillAction.type2 === "attack" ? `攻撃値` : `回復値`} ： {skillAction.damageOrHeal}<br />
+                      消費MP ： {skillAction.consumptionMP}
+                    </Tooltip>
+                  </MenuItemWrapper>
                 ))}
                 <MenuItem onClick={() => setSkillModalVisible(false)}>
                   とじる
